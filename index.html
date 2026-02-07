@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard NASDAQ INVESTMENT</title>
+<style>
+*{box-sizing:border-box;font-family:Arial,sans-serif;}
+body{
+  margin:0;
+  background:linear-gradient(180deg,#e0f0ff,#f0f2f5);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  padding-top:20px;
+}
+.card{
+  background:#fff;
+  width:90%;
+  max-width:400px;
+  padding:25px;
+  border-radius:12px;
+  box-shadow:0 6px 18px rgba(0,0,0,.12);
+  text-align:center;
+  margin:20px 0;
+}
+input,select,button{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border-radius:6px;
+  border:1px solid #ccc;
+  font-size:15px;
+}
+button{
+  background:#2f7fb8;
+  color:#fff;
+  border:none;
+  cursor:pointer;
+  font-size:16px;
+  transition:0.2s;
+}
+button:hover{background:#256a98}
+.hidden{display:none;}
+.error{color:red;margin-top:10px;}
+.red{color:red;font-weight:bold;}
+.checkbox{text-align:left;margin-top:10px;}
+.loader{
+  width:40px;height:40px;
+  border:4px solid #ddd;
+  border-top:4px solid #2f7fb8;
+  border-radius:50%;
+  margin:15px auto;
+  animation:spin 1s linear infinite;
+}
+@keyframes spin{100%{transform:rotate(360deg)}}
+.passbox{position:relative;}
+.eye-icon{
+  position:absolute;
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+  cursor:pointer;
+  font-size:18px;
+}
+.profile-icon{
+  width:100px;
+  height:100px;
+  border-radius:50%;
+  background:#e6e6e6;
+  border:3px solid #2f7fb8;
+  margin:0 auto 15px auto;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.profile-icon svg{width:55px;height:55px;fill:#9e9e9e;}
+.profile-name{font-size:20px;font-weight:bold;margin:0;}
+.status-badge{display:inline-block;background:#e6f4ea;color:#2e7d32;padding:4px 10px;border-radius:20px;font-size:12px;margin-top:6px;}
+.last-login{font-size:12px;color:#777;margin-top:6px;}
+.balance-label{font-size:13px;color:#777;margin-top:15px;}
+.profit{font-size:20px;font-weight:bold;color:#2f7fb8;margin-bottom:10px;position:relative;}
+.profit .arrow{display:inline-block;margin-left:5px;color:#0f9d58;font-weight:bold;animation:upArrow 1s infinite;}
+@keyframes upArrow{0%{transform:translateY(0);}50%{transform:translateY(-3px);}100%{transform:translateY(0);}}
+.notice{font-size:12px;color:#666;margin-bottom:15px;}
+.progress-bar{width:100%;height:10px;background:#ddd;border-radius:6px;overflow:hidden;margin-top:10px;}
+.progress-bar-fill{height:100%;width:0%;background:#2f7fb8;transition:width 1s linear;}
+.footer{margin-top:auto;width:100%;text-align:center;font-size:11px;color:#888;padding:12px 0;border-top:1px solid #ddd;}
+.back-btn{font-size:14px;padding:4px 8px;margin-bottom:10px;cursor:pointer;background:#ccc;color:#333;border-radius:6px;border:none;}
+.support-email{color:#1a73e8;text-decoration:underline;cursor:pointer;}
+.support-whatsapp{color:#25D366;text-decoration:underline;cursor:pointer;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="card" id="loginBox">
+  <h2>NASDAQ INVESTMENT</h2>
+  <p style="font-size:14px;color:#555;">Acompanhe seus lucros e saques de forma segura e transparente.</p>
+  <input id="loginEmail" placeholder="Email">
+  <div class="passbox">
+    <input id="loginPass" type="password" placeholder="Senha" style="padding-right:40px;">
+    <span class="eye-icon" onclick="togglePassword()">👁️</span>
+  </div>
+  <button onclick="login()">Entrar</button>
+  <div id="loginErr" class="error hidden">Dados de login incorretos</div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="card hidden" id="welcomeBox">
+  <div class="profile-icon">
+    <svg viewBox="0 0 24 24">
+      <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+    </svg>
+  </div>
+  <div class="profile-name" id="welcomeText">Olá, Mr. Domingos!</div>
+  <div class="status-badge">Verificado</div>
+  <div class="last-login" id="lastLogin"></div>
+  <div class="balance-label">Saldo disponível</div>
+  <div class="profit">R$ <span id="profitValue">11.560,00</span> <span class="arrow">▲</span></div>
+  <div class="notice">Você só pode sacar até o saldo disponível.</div>
+
+  <button onclick="toggleDetails()" style="margin-top:10px;">Ver meus detalhes ▼</button>
+  <div id="accountDetails" class="hidden" style="text-align:left;margin-top:10px;font-size:14px;">
+    <p><b>Nome completo:</b> Domingos Bernardo da Cruz</p>
+    <p><b>Localização:</b> São Paulo</p>
+    <p><b>Email:</b> drdomingosdacruz@gmail.com</p>
+    <p><b>Tel:</b> 11965147883</p>
+    <p><b>Chave Pix:</b> 11984438921</p>
+  </div>
+
+  <button onclick="showPage('methodBox')">Iniciar Saque</button>
+
+  <p style="margin-top:10px;font-size:13px;">Suporte: <span class="support-email" onclick="window.location.href='mailto:nasdaqinvestment2@gmail.com'">Email</span> | <span class="support-whatsapp" onclick="window.open('https://wa.me/19514725959')">WhatsApp</span></p>
+</div>
+
+<!-- METHOD -->
+<div class="card hidden" id="methodBox">
+  <button class="back-btn" onclick="back()">← Voltar</button>
+  <h2>Selecionar método de saque</h2>
+  <select id="method">
+    <option value="">-- Escolha --</option>
+    <option value="bank">Saque Bancário</option>
+    <option value="wallet">Saque Wallet</option>
+  </select>
+  <button onclick="openMethod()">Continuar</button>
+</div>
+
+<!-- BANK -->
+<div class="card hidden" id="bankBox">
+  <button class="back-btn" onclick="back()">← Voltar</button>
+  <h2>Saque Bancário</h2>
+  <input placeholder="Nome completo" id="bankName">
+  <input placeholder="E-mail" id="bankEmail">
+  <input placeholder="País" id="bankCountry">
+  <input placeholder="Nome do banco" id="bankBank">
+  <input placeholder="Chave PIX" id="bankPIX">
+  <input id="bankAmount" type="text" placeholder="Valor em BRL" oninput="formatInputLive(this,'R$')" onblur="formatInputFinal(this,'R$')">
+  <div class="checkbox"><input type="checkbox" id="bankCheck"> Confirmo que os dados estão corretos</div>
+  <button onclick="bankSubmit()">Continuar</button>
+  <div id="bankErr" class="error hidden"></div>
+</div>
+
+<!-- WALLET -->
+<div class="card hidden" id="walletBox">
+  <button class="back-btn" onclick="back()">← Voltar</button>
+  <h2>Saque Wallet</h2>
+  <input placeholder="E-mail" id="walletEmail">
+  <input placeholder="Endereço da Wallet" id="walletAddr">
+  <select id="walletNetwork">
+    <option value="USDT">USDT</option>
+    <option value="ETH">Ethereum</option>
+    <option value="BNB">BNB</option>
+  </select>
+  <input id="walletAmount" type="text" placeholder="Valor em $ USDT" oninput="formatInputLive(this,'$')" onblur="formatInputFinal(this,'$')">
+  <div class="checkbox"><input type="checkbox" id="walletCheck"> Confirmo que os dados estão corretos</div>
+  <button onclick="walletSubmit()">Continuar</button>
+  <div id="walletErr" class="error hidden"></div>
+</div>
+
+<!-- KYC -->
+<div class="card hidden" id="kycBox">
+  <button class="back-btn" onclick="back()">← Voltar</button>
+  <h2>Verificação KYC</h2>
+  <input id="kycInput" placeholder="Digite o código KYC">
+  <button onclick="verifyKYC()">Verificar</button>
+  <div id="kycErr" class="error hidden">Código KYC inválido</div>
+</div>
+
+<!-- PROCESS -->
+<div class="card hidden" id="processBox">
+  <h2>Processando Saque</h2>
+  <div class="loader"></div>
+  <div class="progress-bar"><div class="progress-bar-fill" id="progressBar"></div></div>
+  <p id="processText"></p>
+  <p id="processMsg"></p>
+  <p id="transactionID"></p>
+  <p><b>Data / Hora:</b><br><span id="dateTime"></span></p>
+  <p class="red">Tempo restante: <span id="timer">01:00</span></p>
+  <p id="pendingClick" class="hidden" style="margin-top:10px;font-size:14px;color:#25D366;cursor:pointer;" onclick="window.open('https://wa.me/19514725959')">Clique aqui para contato via WhatsApp</p>
+</div>
+
+<!-- PENDING -->
+<div class="card hidden" id="pendingBox">
+  <h2>Saque Pendente</h2>
+  <p id="transactionID2"></p>
+  <p><b>Data / Hora:</b><br><span id="dateTime2"></span></p>
+  <p class="red" id="pendingText"></p>
+  <p style="margin-top:10px;font-size:14px;">Suporte: <span class="support-email" onclick="window.location.href='mailto:nasdaqinvestment2@gmail.com'">Email</span> | <span class="support-whatsapp" onclick="window.open('https://wa.me/19514725959')">WhatsApp</span></p>
+</div>
+
+<div class="footer">© 2026 NASDAQ INVESTMENT · Todas as transações são seguras e criptografadas</div>
+
+<script>
+let amountText="", trxID="", profit=11560;
+let pageStack = [];
+function el(id){return document.getElementById(id);}
+function togglePassword(){ 
+  let pass=el("loginPass");
+  pass.type = pass.type==="password"?"text":"password";
+}
+function toggleDetails(){el("accountDetails").classList.toggle("hidden");}
+
+// LOGIN
+function login(){
+ const email=el("loginEmail").value;
+ const pass=el("loginPass").value;
+ if(email==="drdomingosdacruz@gmail.com" && pass==="NASDAQ22"){
+   el("loginBox").classList.add("hidden");
+   el("welcomeBox").classList.remove("hidden");
+   el("lastLogin").innerText="Último login: "+new Date().toLocaleString();
+   el("welcomeText").innerText="Olá, Mr. Domingos!";
+   startProfitCounter();
+ } else el("loginErr").classList.remove("hidden");
+}
+
+// PAGE NAVIGATION
+function showPage(pageId){
+  ["welcomeBox","methodBox","bankBox","walletBox","kycBox","processBox","pendingBox"].forEach(id=>el(id).classList.add("hidden"));
+  el(pageId).classList.remove("hidden");
+  pageStack.push(pageId);
+}
+function back(){
+  if(pageStack.length>1){
+    pageStack.pop();
+    const prev = pageStack[pageStack.length-1];
+    el(prev).classList.remove("hidden");
+  }
+}
+
+// METHOD
+function openMethod(){
+  const m=el("method").value;
+  if(!m)return;
+  showPage(m+'Box');
+}
+
+// FORMATTING
+function formatInputLive(i,s){let v=i.value.replace(/[^\d]/g,'');i.value=v?s+' '+v:'';}
+function formatInputFinal(i,s){let v=i.value.replace(/[^\d]/g,'');if(!v)return;i.value=s+' '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2});}
+
+// BANK
+function bankSubmit(){
+  let name=el("bankName").value,email=el("bankEmail").value,country=el("bankCountry").value,bank=el("bankBank").value,pix=el("bankPIX").value,amtText=el("bankAmount").value.replace(/[^\d]/g,''),amt=parseFloat(amtText)/100;
+  if(!name||!email||!country||!bank||!pix||!el("bankCheck").checked||!amtText){
+    el("bankErr").innerText="Preencha todos os campos corretamente";el("bankErr").classList.remove("hidden");return;}
+  if(amt>profit){el("bankErr").innerText="O valor do saque excede o limite disponível";el("bankErr").classList.remove("hidden");return;}
+  amountText=el("bankAmount").value;
+  el("bankErr").classList.add("hidden");
+  goKYC();
+}
+
+// WALLET
+function walletSubmit(){
+  let email=el("walletEmail").value,addr=el("walletAddr").value,amtText=el("walletAmount").value.replace(/[^\d]/g,''),amt=parseFloat(amtText)/100;
+  if(!email||!addr||!el("walletCheck").checked||!amtText){el("walletErr").innerText="Preencha todos os campos corretamente";el("walletErr").classList.remove("hidden");return;}
+  if(amt>profit){el("walletErr").innerText="O valor do saque excede o limite disponível";el("walletErr").classList.remove("hidden");return;}
+  amountText=el("walletAmount").value;
+  el("walletErr").classList.add("hidden");
+  goKYC();
+}
+
+function goKYC(){showPage('kycBox');}
+
+// KYC
+function verifyKYC(){
+  if(el("kycInput").value!=="539494"){el("kycErr").classList.remove("hidden");return;}
+  startProcess();
+}
+
+// PROCESS
+function startProcess(){
+ el("kycBox").classList.add("hidden");
+ showPage('processBox');
+ trxID="TRX-"+Date.now();
+ let requestTime=new Date().toLocaleString();
+ el("dateTime").innerText=requestTime;
+ el("transactionID").innerText="ID de Transação: "+trxID;
+ el("processText").innerText="Seu saque de "+amountText+" está sendo processado.";
+ let msgs=["Conectando ao gateway de pagamento...","Verificando detalhes do saque...","Verificando segurança da conta..."];
+ let idx=0;
+ const rot=setInterval(()=>{el("processMsg").innerText=msgs[idx++%msgs.length];},2000);
+
+ // Countdown and progress bar
+ let t=60;
+ const progressBar=el("progressBar");
+ const timer=setInterval(()=>{
+   t--;
+   el("timer").innerText="00:"+(t<10?"0"+t:t);
+   progressBar.style.width=((60-t)/60*100)+"%";
+   if(t<=0){
+     clearInterval(timer);
+     clearInterval(rot);
+     el("pendingClick").classList.remove("hidden");
+     setTimeout(()=>{
+       el("processBox").classList.add("hidden");
+       showPage('pendingBox');
+       el("dateTime2").innerText=requestTime;
+       el("transactionID2").innerText="ID de Transação: "+trxID;
+       el("pendingText").innerHTML="Seu saque de <b>"+amountText+"</b> está pendente devido à verificação incompleta.<br><br>Por favor, entre em contato com a empresa para aprovação do saque.";
+     },1000);
+   }
+ },1000);
+}
+
+// PROFIT
+function startProfitCounter(){
+  const profitEl=el("profitValue");
+  setInterval(()=>{
+    let increment=(Math.random()*5).toFixed(2);
+    profit+=parseFloat(increment);
+    profitEl.innerText=profit.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  },3000);
+}
+</script>
+</body>
+</html>
